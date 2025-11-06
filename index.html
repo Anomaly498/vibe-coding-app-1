@@ -16,7 +16,6 @@
             --bg-light: #2a2a2a;
             --text-primary: #E0E0E0;
             --text-secondary: #B3B3B3;
-            /* NEW: Vibe Colors */
             --accent-primary: #10B981; /* A cool green */
             --accent-secondary: #3B82F6; /* A nice blue */
         }
@@ -27,10 +26,10 @@
             box-sizing: border-box;
         }
 
-        html, body {
-            height: 100%;
+        html {
+            height: 100%; /* Fix for flex-grow */
         }
-
+        
         body {
             font-family: 'Inter', sans-serif;
             background-color: var(--bg-dark);
@@ -40,6 +39,7 @@
             align-items: center;
             padding: 2rem;
             overflow-x: hidden;
+            min-height: 100%; /* Fix for flex-grow */
             
             /* --- CURSOR FIX 1: Hide default cursor --- */
             cursor: none;
@@ -121,7 +121,7 @@
         .page {
             display: none;
             width: 100%;
-            flex-grow: 1;
+            flex-grow: 1; /* This makes the page fill the available space */
             flex-direction: column;
             align-items: center;
         }
@@ -332,6 +332,21 @@
             display: block;
             margin-top: 0.5rem;
         }
+        
+        /* NEW: Google Maps link style */
+        .map-link {
+            display: inline-block;
+            background-color: var(--accent-secondary);
+            color: #fff;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            margin-top: 0.5rem;
+        }
+        .map-link:hover {
+            opacity: 0.8;
+        }
 
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
@@ -374,16 +389,6 @@
             line-height: 1.6;
             margin-bottom: 1rem;
         }
-        #about-content ul {
-            font-size: 1.1rem;
-            color: var(--text-secondary);
-            line-height: 1.6;
-            list-style-position: inside;
-            padding-left: 0.5rem;
-        }
-        #about-content li {
-            margin-bottom: 0.5rem;
-        }
         
         /* Testimonial Card for "Dummy Models" */
         .testimonial-card {
@@ -406,12 +411,43 @@
             font-style: normal;
         }
 
+        /* NEW: Vibe Tags for About Page */
+        .vibe-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-top: 0.5rem;
+        }
+        .vibe-tag {
+            background-color: var(--bg-medium);
+            border: 1px solid var(--bg-light);
+            color: var(--text-primary);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
          @media (max-width: 600px) {
             #about-content h1 { font-size: 2.5rem; }
             #about-content h2 { font-size: 1.5rem; }
             #about-content p { font-size: 1rem; }
-            #about-content ul { font-size: 1rem; }
          }
+         
+        /* --- NEW: Footer --- */
+        footer {
+            width: 100%;
+            max-width: 1000px;
+            padding: 2rem 0 1rem 0;
+            margin-top: 3rem; /* Push footer down */
+            text-align: center;
+            border-top: 1px solid var(--bg-light);
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        footer p {
+            margin: 0.25rem;
+        }
 
 
     </style>
@@ -421,21 +457,27 @@
     <div class="cursor-dot"></div>
     <div class="cursor-outline"></div>
     
+    <!-- Navigation Bar -->
     <nav>
+        <!-- NEW: "Scout" instead of "Home" -->
         <button class="nav-btn active" data-page="home">Scout</button>
         <button class="nav-btn" data-page="about">About</button>
     </nav>
     
+    <!-- Page 1 (Home) -->
     <div id="home" class="page active">
         <header class="header">
+            <!-- NEW: Title -->
             <span class="header-title">VibeScout</span>
         </header>
 
         <main class="main-content">
+            <!-- NEW: Text -->
             <h1 class="headline">Find Your Spot.</h1>
             <p class="sub-headline">Tell our AI your current vibe, and we'll find a hidden gem to match.</p>
 
             <section class="ai-section">
+                <!-- NEW: IDs and Placeholder -->
                 <input type="text" id="vibe-input" class="mood-input" placeholder="Enter a vibe (e.g., cozy cafe, quiet park)">
                 <button id="find-spot-btn" class="find-music-btn">Find Spot</button>
                 
@@ -444,21 +486,32 @@
         </main>
     </div>
     
+    <!-- Page 2 (About) -->
     <div id="about" class="page">
+        <!-- NEW: Updated "About" content -->
         <div id="about-content">
             <h1>About VibeScout</h1>
-            <p>VibeScout is a "vibe-based" AI agent built for the Vibe Coding competition. It uses Google's Gemini API to generate prototype "hidden gem" locations, complete with *dummy user reviews*, based on a user's mood.</p>
-            <p>This entire app, including the multi-page navigation and custom cursor, runs from a single HTML file.</p>
-        
-            <h2>Our Team</h2>
-            <p>This project was built in 1.5 hours by our 4-person team:</p>
-            <ul>
-                <li><strong>[Team Member 1 Name]</strong> - The Coder (Driver)</li>
-                <li><strong>[Team Member 2 Name]</strong> - The Prompter (AI Specialist)</li>
-                <li><strong>[Team Member 3 Name]</strong> - The Asset Manager (Designer)</li>
-                <li><strong>[Team Member 4 Name]</strong> - The Team Lead (Presenter)</li>
-            </ul>
+            <p>VibeScout is an AI-powered discovery tool. Instead of searching for "restaurants" or "parks," you search for *vibes*. Tell our AI agent you're looking for a "quiet place to read" or a "lively spot for street food," and it will find a prototype location that matches your feeling.</p>
 
+            <!-- NEW: "Our Uniqueness" section -->
+            <h2>Our Unique Vibe</h2>
+            <p>Traditional map apps are functional. VibeScout is emotional. We are prototyping a new way to explore your city based on feeling, not just function. By leveraging a generative AI agent, we can provide creative, curated suggestions that go beyond simple category searches.</p>
+        
+            <!-- NEW: Vibe Inspiration Section -->
+            <h2>Vibe Inspiration</h2>
+            <p>Our AI can understand almost anything, but here are some popular vibes to get you started:</p>
+            <div class="vibe-tags">
+                <span class="vibe-tag">Quiet place to read</span>
+                <span class="vibe-tag">Best puchkas</span>
+                <span class="vibe-tag">Cozy cafe vibe</span>
+                <span class="vibe-tag">Historic chai stall</span>
+                <span class="vibe-tag">Romantic sunset spot</span>
+                <span class="vibe-tag">Good for studying</span>
+                <span class="vibe-tag">Lively street art</span>
+            </div>
+            <!-- END: Vibe Inspiration Section -->
+
+            <!-- "DUMMY MODELS" SECTION -->
             <h2>What Our Users Are Saying</h2>
             
             <div class="testimonial-card">
@@ -472,6 +525,12 @@
             </div>
         </div>
     </div>
+    
+    <!-- NEW: Global Footer -->
+    <footer>
+        <p>A Vibe Coding Prototype by Team [YOUR TEAM NAME]</p>
+        <p>[Member 1] • [Member 2] • [Member 3] • [Member 4]</p>
+    </footer>
 
 
     <script>
@@ -595,32 +654,37 @@
                 const modelName = "gemini-flash-latest";
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
 
-                // --- NEW: SYSTEM PROMPT (WITH DUMMY IMAGE) ---
-                // This is the "brain" of the new app.
-                const systemPrompt = `You are 'VibeScout', an AI for finding hidden gems. A user will give you a vibe (e.g., 'cozy cafe'). Respond with a fake, creative location name, a 1-sentence description, a fake 'dummy image' from placehold.co, and 2 fake 'dummy model' reviews.
+                // --- KOKKATA-GROUNDED SYSTEM PROMPT ---
+                // This is the "brain" of the app.
+                const systemPrompt = `You are 'Kolkata VibeScout', an AI for finding hidden gems in Kolkata, India. A user will give you a vibe (e.g., 'best puchkas' or 'quiet place to read'). 
+                
+                Respond with a REAL, FAMOUS Kolkata location or area (like 'Victoria Memorial', 'Prinsep Ghat', 'College Street', 'a famous stall on Park Street') that matches the vibe. 
+                
+                You must also generate a 1-sentence description, a 'dummy image' from placehold.co, a REAL Google Maps search link, and 2 fake 'dummy model' reviews.
                 
                 IMPORTANT: For the image, you must generate a URL like this: https://placehold.co/600x300/333333/E0E0E0?text=[Location+Name+Here]. You must replace spaces in the name with a '+'.
                 
+                IMPORTANT: For the map link, you must generate a URL like this: https://www.google.com/maps/search/?api=1&query=[Location+Name+Kolkata]. You must replace spaces with '+'.
+
                 Respond *only* in this exact HTML format:
                 <div class="result-card">
                     <img src="https://placehold.co/600x300/1e1e1e/E0E0E0?text=[Generated+Location+Name]" alt="Prototype Image" class="fake-map-image">
                     <h3>[Generated Location Name]</h3>
                     <p>[Generated 1-sentence description]</p>
+                    <a href="https://www.google.com/maps/search/?api=1&query=[Generated+Location+Name+Kolkata]" target="_blank" class="map-link">View on Google Maps</a>
                     
                     <div class="dummy-review">
                         <p>"[Generated fake review text 1]"</p>
-                        <span class="user-name">- [Fake User Name 1 (e.g., Alex, Maya)]</span>
+                        <span class="user-name">- [Fake User Name 1 (e.g., Rohan, Priya)]</span>
                     </div>
                     <div class="dummy-review">
                         <p>"[Generated fake review text 2]"</p>
-                        <span class="user-name">- [Fake User Name 2 (e.g., Jordan, Chloe)]</span>
+                        <span class="user-name">- [Fake User Name 2 (e.g., Anik, Sneha)]</span>
                     </div>
                 </div>
                 `;
                 
                 const userQuery = `My current vibe is: "${vibe}"`;
-                // We need to make sure the AI prompt doesn't get confused by the example URL.
-                // The AI will follow the instructions in the systemPrompt.
                 const finalPrompt = `${systemPrompt}\n\nUSER VIBE: ${userQuery}`;
                 const payload = {
                     contents: [{
