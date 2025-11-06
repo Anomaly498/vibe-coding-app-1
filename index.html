@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VibeScout - Find Hidden Gems</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- Base & Theme --- */
+        :root {
+            --bg-dark: #121212;
+            --bg-medium: #1e1e1e;
+            --bg-light: #2a2a2a;
+            --text-primary: #E0E0E0;
+            --text-secondary: #B3B3B3;
+            /* NEW: Vibe Colors */
+            --accent-primary: #10B981; /* A cool green */
+            --accent-secondary: #3B82F6; /* A nice blue */
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+            overflow-x: hidden;
+            
+            /* --- CURSOR FIX 1: Hide default cursor --- */
+            cursor: none;
+        }
+
+        /* --- VIBE CURSOR CSS --- */
+        .cursor-dot,
+        .cursor-outline {
+            pointer-events: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            opacity: 1;
+            transition: transform 0.1s linear, opacity 0.3s ease-in-out;
+            z-index: 9999;
+        }
+        
+        .cursor-hidden {
+            opacity: 0;
+        }
+
+        @media (hover: none) {
+            .cursor-dot,
+            .cursor-outline {
+                display: none !important;
+            }
+            body {
+                cursor: auto !important;
+            }
+        }
+
+        .cursor-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent-secondary); 
+        }
+
+        .cursor-outline {
+            width: 30px;
+            height: 30px;
+            border: 2px solid var(--accent-secondary);
+        }
+
+        /* --- Navigation --- */
+        nav {
+            width: 100%;
+            max-width: 1000px;
+            padding: 0.5rem 0 1.5rem 0;
+            text-align: left;
+        }
+
+        nav .nav-btn {
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            padding: 0.5rem 1rem;
+            margin-right: 0.5rem;
+            cursor: pointer;
+            background-color: var(--bg-medium);
+            color: var(--text-secondary);
+            border: 1px solid var(--bg-light);
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+        
+        nav .nav-btn:hover {
+            color: var(--text-primary);
+            border-color: var(--text-secondary);
+        }
+
+        nav .nav-btn.active {
+            color: var(--accent-primary);
+            border-color: var(--accent-primary);
+        }
+
+        /* --- Page Containers --- */
+        .page {
+            display: none;
+            width: 100%;
+            flex-grow: 1;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .page.active {
+            display: flex; 
+        }
+
+
+        /* --- Header --- */
+        .header {
+            width: 100%;
+            max-width: 1000px;
+            padding: 1rem 0;
+            text-align: left;
+        }
+
+        .header-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: 1px;
+        }
+
+        /* --- Main Content --- */
+        .main-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            width: 100%;
+            max-width: 600px;
+            padding-bottom: 5rem; 
+        }
+
+        .headline {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            /* Cool gradient text effect */
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-fill-color: transparent;
+        }
+
+        .sub-headline {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-bottom: 3rem;
+        }
+
+        /* --- AI Interaction Section --- */
+        .ai-section {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .mood-input {
+            width: 100%;
+            padding: 1rem;
+            font-size: 1rem;
+            background-color: var(--bg-medium);
+            border: 1px solid var(--bg-light);
+            color: var(--text-primary);
+            border-radius: 12px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .mood-input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .mood-input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.3);
+        }
+
+        .find-music-btn {
+            padding: 1rem;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #ffffff;
+            background: var(--accent-primary);
+            border: none;
+            border-radius: 12px;
+            cursor: pointer; 
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .find-music-btn:hover {
+            background: linear-gradient(90deg, var(--accent-primary), #10c991);
+            transform: translateY(-2px);
+        }
+
+        .find-music-btn:active {
+            transform: translateY(0);
+        }
+
+        .find-music-btn.loading {
+            animation: pulse 1.5s infinite ease-in-out;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.02); opacity: 0.9; }
+        }
+
+        /* --- Response Area --- */
+        #response-area {
+            width: 100%;
+            min-height: 100px;
+            background-color: transparent; /* Changed */
+            border-radius: 12px;
+            padding: 0; /* Changed */
+            margin-top: 1.5rem;
+            text-align: left;
+            line-height: 1.6;
+            color: var(--text-secondary);
+            display: none; 
+            border: none; /* Changed */
+        }
+        
+        /* NEW: Result Card Styling */
+        #response-area .result-card {
+             background-color: var(--bg-medium);
+             border-radius: 12px;
+             padding: 1.5rem;
+             border: 1px solid var(--bg-light);
+        }
+        
+        /* NEW: "Fake Map Image" div */
+        .fake-map-image {
+            width: 100%;
+            height: 170px;
+            background-color: #333;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            object-fit: cover; /* This makes the image look good */
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        #response-area.visible {
+            display: block;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        /* Typing indicator */
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            padding: 1.5rem; /* Added padding */
+        }
+        .typing-indicator span {
+            height: 8px;
+            width: 8px;
+            margin: 0 2px;
+            background-color: var(--text-secondary);
+            border-radius: 50%;
+            display: inline-block;
+            animation: bounce 1.4s infinite both;
+        }
+        .typing-indicator span:nth-child(1) { animation-delay: 0.0s; }
+        .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1.0); }
+        }
+        
+        /* Styling for AI-generated content */
+        #response-area h3 {
+            color: var(--text-primary);
+            font-size: 1.5rem; /* Made bigger */
+            margin-bottom: 0.5rem;
+        }
+        
+        #response-area > .result-card > p {
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+        
+        /* NEW: "Dummy Model" Review Card */
+        .dummy-review {
+            background-color: var(--bg-dark);
+            border: 1px solid var(--bg-light);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+        .dummy-review p {
+            font-style: italic;
+            color: var(--text-primary);
+        }
+        .dummy-review .user-name {
+            font-style: normal;
+            font-weight: 700;
+            color: var(--accent-secondary);
+            display: block;
+            margin-top: 0.5rem;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- Responsive Design --- */
+        @media (max-width: 600px) {
+            body { padding: 1rem; }
+            .headline { font-size: 2.5rem; }
+            .sub-headline { font-size: 1rem; }
+        }
+
+        /* --- About Page Styling --- */
+        #about-content {
+            justify-content: center; 
+            max-width: 600px;
+            text-align: left;
+        }
+        #about-content h1 { 
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-fill-color: transparent;
+        }
+        #about-content h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            margin-top: 2rem;
+        }
+        #about-content p { 
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+        #about-content ul {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            list-style-position: inside;
+            padding-left: 0.5rem;
+        }
+        #about-content li {
+            margin-bottom: 0.5rem;
+        }
+        
+        /* Testimonial Card for "Dummy Models" */
+        .testimonial-card {
+            background-color: var(--bg-medium);
+            border: 1px solid var(--bg-light);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+        }
+        .testimonial-card p {
+            font-size: 1.1rem;
+            color: var(--text-primary);
+            font-style: italic;
+        }
+        .testimonial-card .user-name {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--accent-secondary);
+            margin-top: 1rem;
+            font-style: normal;
+        }
+
+         @media (max-width: 600px) {
+            #about-content h1 { font-size: 2.5rem; }
+            #about-content h2 { font-size: 1.5rem; }
+            #about-content p { font-size: 1rem; }
+            #about-content ul { font-size: 1rem; }
+         }
+
+
+    </style>
+</head>
+<body>
+
+    <div class="cursor-dot"></div>
+    <div class="cursor-outline"></div>
+    
+    <nav>
+        <button class="nav-btn active" data-page="home">Scout</button>
+        <button class="nav-btn" data-page="about">About</button>
+    </nav>
+    
+    <div id="home" class="page active">
+        <header class="header">
+            <span class="header-title">VibeScout</span>
+        </header>
+
+        <main class="main-content">
+            <h1 class="headline">Find Your Spot.</h1>
+            <p class="sub-headline">Tell our AI your current vibe, and we'll find a hidden gem to match.</p>
+
+            <section class="ai-section">
+                <input type="text" id="vibe-input" class="mood-input" placeholder="Enter a vibe (e.g., cozy cafe, quiet park)">
+                <button id="find-spot-btn" class="find-music-btn">Find Spot</button>
+                
+                <div id="response-area"></div>
+            </section>
+        </main>
+    </div>
+    
+    <div id="about" class="page">
+        <div id="about-content">
+            <h1>About VibeScout</h1>
+            <p>VibeScout is a "vibe-based" AI agent built for the Vibe Coding competition. It uses Google's Gemini API to generate prototype "hidden gem" locations, complete with *dummy user reviews*, based on a user's mood.</p>
+            <p>This entire app, including the multi-page navigation and custom cursor, runs from a single HTML file.</p>
+        
+            <h2>Our Team</h2>
+            <p>This project was built in 1.5 hours by our 4-person team:</p>
+            <ul>
+                <li><strong>[Team Member 1 Name]</strong> - The Coder (Driver)</li>
+                <li><strong>[Team Member 2 Name]</strong> - The Prompter (AI Specialist)</li>
+                <li><strong>[Team Member 3 Name]</strong> - The Asset Manager (Designer)</li>
+                <li><strong>[Team Member 4 Name]</strong> - The Team Lead (Presenter)</li>
+            </ul>
+
+            <h2>What Our Users Are Saying</h2>
+            
+            <div class="testimonial-card">
+                <p>"I typed in 'rainy day' and it found a 'hidden library nook' I never knew about. The reviews from other users were spot on!"</p>
+                <p class="user-name">- Alex (Dummy User)</p>
+            </div>
+            
+            <div class="testimonial-card">
+                <p>"A map app based on *vibes* instead of just 'restaurants'? Genius. This is the prototype I've been waiting for."</p>
+                <p class="user-name">- Maya (Dummy Model)</p>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        // Wait for the DOM to be fully loaded
+        document.addEventListener("DOMContentLoaded", function() {
+            
+            // --- PAGE NAVIGATION LOGIC ---
+            const navButtons = document.querySelectorAll(".nav-btn");
+            const pages = document.querySelectorAll(".page");
+
+            navButtons.forEach(button => {
+                button.addEventListener("click", () => {
+                    const targetPageId = button.dataset.page; 
+                    navButtons.forEach(btn => btn.classList.remove("active"));
+                    button.classList.add("active");
+                    pages.forEach(page => page.classList.remove("active"));
+                    document.getElementById(targetPageId).classList.add("active");
+                });
+            });
+
+            // --- VIBE CURSOR JS ---
+            const cursorDot = document.querySelector(".cursor-dot");
+            const cursorOutline = document.querySelector(".cursor-outline");
+
+            window.addEventListener("mousemove", function (e) {
+                cursorDot.style.left = e.clientX + 'px';
+                cursorDot.style.top = e.clientY + 'px';
+                cursorOutline.style.left = e.clientX + 'px';
+                cursorOutline.style.top = e.clientY + 'px';
+            });
+            document.addEventListener("mouseleave", () => {
+                cursorDot.classList.add("cursor-hidden");
+                cursorOutline.classList.add("cursor-hidden");
+            });
+            document.addEventListener("mouseenter", () => {
+                cursorDot.classList.remove("cursor-hidden");
+                cursorOutline.classList.remove("cursor-hidden");
+            });
+            
+            // --- Get elements ---
+            // NEW: Updated IDs
+            const findBtn = document.getElementById("find-spot-btn");
+            const vibeInput = document.getElementById("vibe-input");
+            const responseArea = document.getElementById("response-area");
+
+            // --- Cursor hide on input focus ---
+            vibeInput.addEventListener("focus", () => {
+                cursorDot.classList.add("cursor-hidden");
+                cursorOutline.classList.add("cursor-hidden");
+            });
+            vibeInput.addEventListener("blur", () => {
+                cursorDot.classList.remove("cursor-hidden");
+                cursorOutline.classList.remove("cursor-hidden");
+            });
+
+            // --- Click listeners ---
+            findBtn.addEventListener("click", getAiResponse);
+            vibeInput.addEventListener("keypress", function(event) {
+                if (event.key === "Enter") {
+                    getAiResponse();
+                }
+            });
+
+            // --- AI Agent (Gemini API) ---
+            async function fetchWithBackoff(apiUrl, payload, retries = 3, delay = 1000) {
+                try {
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return await response.json();
+                } catch (error) {
+                    if (retries > 0) {
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                        return fetchWithBackoff(apiUrl, payload, retries - 1, delay * 2);
+                    } else {
+                        console.error("AI request failed after multiple retries:", error);
+                        throw error;
+                    }
+                }
+            }
+
+            function showLoadingIndicator() {
+                responseArea.classList.add("visible");
+                responseArea.innerHTML = `
+                    <div class="typing-indicator">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                `;
+            }
+
+            async function getAiResponse() {
+                // NEW: Use vibeInput
+                const vibe = vibeInput.value.trim();
+
+                if (vibe === "") {
+                    responseArea.classList.add("visible");
+                    responseArea.innerHTML = `
+                        <div class="result-card">
+                            <h3>Hmm...</h3>
+                            <p>You didn't tell me your vibe! Try typing "cozy" or "quiet".</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                findBtn.classList.add("loading");
+                findBtn.disabled = true;
+                showLoadingIndicator();
+                cursorDot.classList.add("cursor-hidden");
+                cursorOutline.classList.add("cursor-hidden");
+
+                // --- Call the Gemini API ---
+                const apiKey = "AIzaSyD0U_Tdr0reYbYVM25lV-7gKMTHKvZjF1o"; 
+                const modelName = "gemini-flash-latest";
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
+
+                // --- NEW: SYSTEM PROMPT (WITH DUMMY IMAGE) ---
+                // This is the "brain" of the new app.
+                const systemPrompt = `You are 'VibeScout', an AI for finding hidden gems. A user will give you a vibe (e.g., 'cozy cafe'). Respond with a fake, creative location name, a 1-sentence description, a fake 'dummy image' from placehold.co, and 2 fake 'dummy model' reviews.
+                
+                IMPORTANT: For the image, you must generate a URL like this: https://placehold.co/600x300/333333/E0E0E0?text=[Location+Name+Here]. You must replace spaces in the name with a '+'.
+                
+                Respond *only* in this exact HTML format:
+                <div class="result-card">
+                    <img src="https://placehold.co/600x300/1e1e1e/E0E0E0?text=[Generated+Location+Name]" alt="Prototype Image" class="fake-map-image">
+                    <h3>[Generated Location Name]</h3>
+                    <p>[Generated 1-sentence description]</p>
+                    
+                    <div class="dummy-review">
+                        <p>"[Generated fake review text 1]"</p>
+                        <span class="user-name">- [Fake User Name 1 (e.g., Alex, Maya)]</span>
+                    </div>
+                    <div class="dummy-review">
+                        <p>"[Generated fake review text 2]"</p>
+                        <span class="user-name">- [Fake User Name 2 (e.g., Jordan, Chloe)]</span>
+                    </div>
+                </div>
+                `;
+                
+                const userQuery = `My current vibe is: "${vibe}"`;
+                // We need to make sure the AI prompt doesn't get confused by the example URL.
+                // The AI will follow the instructions in the systemPrompt.
+                const finalPrompt = `${systemPrompt}\n\nUSER VIBE: ${userQuery}`;
+                const payload = {
+                    contents: [{
+                        parts: [{ text: finalPrompt }]
+                    }]
+                };
+                // --- END: NEW PROMPT ---
+
+                try {
+                    const result = await fetchWithBackoff(apiUrl, payload);
+                    const candidate = result.candidates?.[0];
+
+                    if (candidate && candidate.content?.parts?.[0]?.text) {
+                        const aiHtmlResponse = candidate.content.parts[0].text;
+                        responseArea.innerHTML = aiHtmlResponse;
+                    } else {
+                        if (candidate && candidate.finishReason) {
+                            throw new Error(`AI response was blocked. Reason: ${candidate.finishReason}`);
+                        } else {
+                            throw new Error("Invalid response structure from AI.");
+                        }
+                    }
+
+                } catch (error) {
+                    console.error("Error fetching AI response:", error);
+                    let errorMessage = "My circuits are a bit fuzzy right now. Please try again in a moment.";
+                    
+                    if (error.message.includes("400")) {
+                        errorMessage = "Error (400). This often means the API key is invalid or billing is not set up."
+                    } else if (error.message.includes("404")) {
+                        errorMessage = "AI model not found (404). Check the model name."
+                    } else if (error.message.includes("403")) {
+                         errorMessage = "Permission denied (403). This almost always means your API key is not active. Please set up billing in your Google Cloud project."
+                    } else if (error.message.includes("blocked")) {
+                        errorMessage = "The response was blocked by safety settings. Try a different vibe!"
+                    }
+                    
+                    // NEW: Display error in the result card
+                    responseArea.innerHTML = `
+                        <div class="result-card">
+                            <h3>Oops!</h3>
+                            <p>${errorMessage}</p>
+                            <p><small>Error: ${error.message}</small></p>
+                        </div>
+                    `;
+                } finally {
+                    findBtn.classList.remove("loading");
+                    findBtn.disabled = false;
+                    
+                    if (document.activeElement !== vibeInput) {
+                        cursorDot.classList.remove("cursor-hidden");
+                        cursorOutline.classList.remove("cursor-hidden");
+                    }
+                }
+            }
+        });
+    </script>
+
+</body>
+</html>
